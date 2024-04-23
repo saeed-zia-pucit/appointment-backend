@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from django.core.exceptions import ObjectDoesNotExist
-
+from storefront.response  import StandardResponse
 from .models import CustomUser
 from .serializers import UserSerializer
 from rest_framework.permissions import IsAuthenticated
@@ -15,26 +15,38 @@ def register_user(request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return StandardResponse.created(successMessage="User Register Successfully",data=serializer.data)
+        else:
+            error_message = ""
+            for field, messages in serializer.errors.items():
+                error_message += f"{field}: {', '.join(messages)}. "
+            return StandardResponse.error(error_message)
     
-@permission_classes([IsAuthenticated])
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def user_logout(request):
     if request.method == 'POST':
-        try:
-            # Delete the user's token to logout
-            request.user.auth_token.delete()
-            return Response({'message': 'Successfully logged out.'}, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
+        if request.user.is_authenticated:
+            try:
+                # Check if the user has an associated authentication token
+                if hasattr(request.user, 'auth_token') and request.user.auth_token:
+                    # Delete the user's token to logout
+                    request.user.auth_token.delete()
+                    return StandardResponse.success(successMessage="User Logout Successfully")
+                else:
+                    return StandardResponse.error(error_message="User does not have an authentication token")
+            except Exception as e:
+                # Convert the exception to a string or provide a custom error message
+                return StandardResponse.error("exception")
+        else:
+            return StandardResponse.error(error_message="User is not authenticated", status_code=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['POST'])
 def user_login(request):
     if request.method == 'POST':
         username = request.data.get('username')
         password = request.data.get('password')
-
+ 
         user = None
         if '@' in username:
             try:
@@ -47,16 +59,18 @@ def user_login(request):
 
         if user:
             token, _ = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key}, status=status.HTTP_200_OK)
+            print(token.key)
+            return StandardResponse.success(successMessage="Login Success",data={'token': token.key})
 
-        return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)        
+        return StandardResponse.error(error_message='Invalid credentials', status_code=status.HTTP_401_UNAUTHORIZED)        
 
 @api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
 def delete_user(request, pk):
     try:
         user = CustomUser.objects.get(pk=pk)
     except CustomUser.DoesNotExist:
-        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        return StandardResponse.error("User not found", status_code=status.HTTP_404_NOT_FOUND)
     
     user.delete()
-    return Response(status=status.HTTP_204_NO_CONTENT)    
+    return StandardResponse.success("User Deleted Successfully",status_code=status.HTTP_204_NO_CONTENT)    
