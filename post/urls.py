@@ -11,15 +11,12 @@ urlpatterns = [
     path('posts/', PostViewSet.as_view({'get': 'list'})),
 
     # URL pattern for retrieving a single doctor's profile
-    path('user-profile/<int:pk>/', PostViewSet.as_view({'get': 'retrieve'})),
+    path('post-details/<int:pk>/', PostViewSet.as_view({'get': 'retrieve'})),
     
-    path('specialization/<str:specialization>/', PostViewSet.as_view({'get': 'get_users_by_specialty'})),
+    path('get-posts-by-category/<str:category>/', PostViewSet.as_view({'get': 'get-posts-by-category'})),
 
-    path('register/', PostViewSet.as_view({'post': 'create'})),
+    path('create-post/', PostViewSet.as_view({'post': 'create'})),
     path('delete/<int:pk>/', PostViewSet.as_view({'delete': 'destroy'})),
-
-    # path('doctor-profile/<int:pk>/', DoctorProfileViewSet.as_view({'get': 'retrieve'})),
-    # path('doctor-profile/<int:pk>/', DoctorProfileViewSet.as_view({'get': 'retrieve'})),
 
 ]
 
