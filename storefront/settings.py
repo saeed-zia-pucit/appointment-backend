@@ -40,8 +40,6 @@ INSTALLED_APPS = [
     'playground',
     'rest_framework',
     'rest_framework.authtoken',
-    'accounts',
-    'doctors',
     'user',
     'post'
 ]

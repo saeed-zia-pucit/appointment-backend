@@ -1,9 +1,9 @@
 from django.db import models
 from django.core.validators import MaxValueValidator
-from accounts.models import CustomUser
+from user.models import User
 
-class SocialMediaPost(models.Model):  
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, default=1) 
+class Post(models.Model):  
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=1) 
     content = models.TextField()  
     likes = models.PositiveIntegerField(default=0)  
     comments = models.PositiveIntegerField(default=0)  

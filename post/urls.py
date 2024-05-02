@@ -1,22 +1,22 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
-from .views import UserProfileViewSet
+from .views import PostViewSet
 
 router = DefaultRouter()
-router.register(r'user', UserProfileViewSet, basename='user')
+router.register(r'post', PostViewSet, basename='post')
 
 # Generate URL patterns for the viewset
 urlpatterns = [
     # URL pattern for listing all doctors
-    path('users/', UserProfileViewSet.as_view({'get': 'list'})),
+    path('posts/', PostViewSet.as_view({'get': 'list'})),
 
     # URL pattern for retrieving a single doctor's profile
-    path('user-profile/<int:pk>/', UserProfileViewSet.as_view({'get': 'retrieve'})),
+    path('user-profile/<int:pk>/', PostViewSet.as_view({'get': 'retrieve'})),
     
-    path('specialization/<str:specialization>/', UserProfileViewSet.as_view({'get': 'get_users_by_specialty'})),
+    path('specialization/<str:specialization>/', PostViewSet.as_view({'get': 'get_users_by_specialty'})),
 
-    path('register/', UserProfileViewSet.as_view({'post': 'create'})),
-    path('delete/<int:pk>/', UserProfileViewSet.as_view({'delete': 'destroy'})),
+    path('register/', PostViewSet.as_view({'post': 'create'})),
+    path('delete/<int:pk>/', PostViewSet.as_view({'delete': 'destroy'})),
 
     # path('doctor-profile/<int:pk>/', DoctorProfileViewSet.as_view({'get': 'retrieve'})),
     # path('doctor-profile/<int:pk>/', DoctorProfileViewSet.as_view({'get': 'retrieve'})),
